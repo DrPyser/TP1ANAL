@@ -1,14 +1,28 @@
-context System::reserve(priority:PriorityType, flight:Flight, class:SectionClassType): Seat
-post: result.status = SeatStatusType.reserved
-
---------
+-------- François
 
 context Flight inv dontArriveWhereYouLeftFromBecauseThatIsntAVeryNiceTrip: self.origin <> self.destination
 
 
---------
+-------- Francois
 context Flight inv veryVerboseIfToValidateNames: Flight.allInstances->forAll(f : Flight | if self.company <> f.company then self.id.substring(1,2) <> f.id.substring(1,2)) endif
 
+--Francois
+--Pour une companie donnée, on doit vérifier toute les paires de vols, avec deux boucles imbriquées.
 context Company inv veryVerboseIfToValidateNamesPart2: self.flights->forAll(f : Flight | self.flights->forAll( other: Flight | if f.id <> other. id then f.id.substring(3,f.length()) <> other.id.substring(3,other.length()) endif ))
 
---Pour une companie donnée, on doit vérifier toute les paires de vols, avec deux boucles imbriquées.
+-- Charles
+-- Le choix du siège à réserver
+context System::reserve(priority:PriorityType, flight:Flight, class:SectionClassType): Seat
+post: result.status = SeatStatusType.reserved
+
+
+--Charles
+-- Le prix d'un siège est déterminé par le prix du vol et sa classe(section).
+-- (i.e. l'implémentation de l'achat d'un siège va connaître 1. le prix du vol(spécifié par la compagnie) 2. le "discount" associé à une section)
+
+context Ticket
+inv priceConsistency: Ticket.allInstances->forAll(t : Ticket |
+    if (self.flight = t.flight) And (self.seat.section = t.seat.section)
+    then self.transaction.cost = t.transaction.cost
+)
+
